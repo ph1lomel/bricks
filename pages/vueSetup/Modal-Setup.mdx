@@ -1,0 +1,109 @@
+import { Tabs, Tab, Callout } from "nextra/components";
+
+# Modal Setup
+
+This article help you undestand how to use modal in your project 
+concisely and not burden.
+
+## Control Visibility
+
+In this case, you may want to:
+
+- set state to a specific value
+- reverse the value
+
+So we use function `toggleVisible` to describe your action.
+
+```js
+export default {
+  methods: {
+    toggleVisible(state = !this.visible) {
+      this.visible = state;
+    }
+  }
+}
+```
+
+### No extra data
+
+It is nature that make modal a independent component, 
+but it **should not cause extra data** when be used.
+So it is necessary to integrate the method inside the component
+and call it through `ref`
+
+
+<Tabs items={['App.vue', 'XXXModal.vue']}>
+<Tab>
+```vue
+<template>
+  <div class="root">
+    <XXXModal ref="XXXModalRef"/>
+    <button @click="XXXModalRef.toggleVisible(true)">open</button>
+  </div>
+</template>
+```
+</Tab>
+<Tab>
+```vue
+<template>
+  <modal :visible.sync="visible">
+    <!-- Your modal content -->
+  </modal>
+</template>
+
+<script>
+export default {
+  name: "XXXModal",
+  data() {
+    return {
+      visible: false
+    }
+  },
+  methods: {
+    toggleVisible(state = !this.visible) {
+      this.visible = state;
+    }
+  }
+}
+</script>
+```
+</Tab>
+</Tabs>
+
+<Callout type="warning">
+  May be you want to integrate button inside your component,
+  but it is better to put it outside, due to other components may need this modal.
+</Callout>
+
+## Payload
+
+It is common to pass payload to modal when it is visible. 
+But we need to make sure it will be destroyed after close.
+
+```js
+export default {
+  data() {
+    return {
+      visible: false,
+      payload: {}
+    }
+  },  
+  methods: {
+    toggleVisible(state = !this.visible,payload = {}) {
+      // will be reset before each open
+      this.payload = payload;
+
+      this.visible = state;
+    }
+  }
+}
+```
+
+<Callout type="warning">
+ Also, the modal should set property `destroyOnClose`.
+</Callout>
+
+## Use mixin
+
+The basic logic is not complex, but it is unnecessary to write it again and again 
+when we build a modal component. So, we can use mixin to help us build modal easily.
